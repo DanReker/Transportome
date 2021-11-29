@@ -1,0 +1,29 @@
+NAME	SMILES	MDR1	BCRP	MRP2	DatabaseID
+Dihydroergotamine (+)-tartrate salt	C[C@@]1(C(=O)N2[C@H](C(=O)N3CCC[C@H]3[C@@]2(O1)O)CC4=CC=CC=C4)NC(=O)[C@@H]5C[C@H]6[C@@H](CC7=CNC8=CC=CC6=C78)N(C5)C.C[C@@]1(C(=O)N2[C@H](C(=O)N3CCC[C@H]3[C@@]2(O1)O)CC4=CC=CC=C4)NC(=O)[C@@H]5C[C@H]6[C@@H](CC7=CNC8=CC=CC6=C78)N(C5)C.C(C(C(=O)O)O)(C(=O)O)O	False	False	True	None
+±)-Verapamil hydrochloride	[H+].[Cl-].COc1ccc(CCN(C)CCCC(C#N)(C(C)C)c2ccc(OC)c(OC)c2)cc1OC	True	False	False	274
+Ibuprofen	CC(C)Cc1ccc(cc1)C(C)C(O)=O	True	False	False	222
+Curcumin	COc1cc(\C=C\C(O)=C\C(=O)/C=C/c2ccc(O)c(OC)c2)ccc1O	False	True	False	348
+Atorvastatin calcium salt trihydrate	[Ca++].CC(C)c1n(CC[C@@H](O)C[C@@H](O)CC([O-])=O)c(c2ccc(F)cc2)c(c3ccccc3)c1C(=O)Nc4ccccc4.CC(C)c5n(CC[C@@H](O)C[C@@H](O)CC([O-])=O)c(c6ccc(F)cc6)c(c7ccccc7)c5C(=O)Nc8ccccc8	True	False	True	223
+Candesartan cilexetil	CCOc1nc2cccc(C(=O)OC(C)OC(=O)OC3CCCCC3)c2n1Cc4ccc(cc4)c5ccccc5c6n[nH]nn6	False	False	False	None
+Warfarin	CC(=O)CC(c1ccccc1)C2=C(O)Oc3ccccc3C2=O	True	True	False	621
+Quinine	COC1=CC2=C(C=CN=C2C=C1)[C@H]([C@@H]3C[C@@H]4CCN3C[C@@H]4C=C)O	True	True	False	165
+Quinidine	COc1ccc2nccc([C@H](O)[C@H]3C[C@@H]4CCN3C[C@@H]4C=C)c2c1	True	False	False	None
+Coumarin	O=C1Oc2ccccc2C=C1	True	False	False	None
+Pamidronate disodium salt hydrate	[Na+].[Na+].NCCC(O)([P](O)([O-])=O)[P](O)([O-])=O	True	False	False	None
+Acyclovir	NC1=NC(=O)c2ncn(COCCO)c2N1	False	False	False	None
+Furosemide	N[S](=O)(=O)c1cc(C(O)=O)c(NCc2occc2)cc1Cl	False	False	True	None
+Chlortetracycline	C[C@@]1(C2C[C@H]3[C@@H](C(=O)C(=C([C@]3(C(=O)C2=C(C4=C(C=CC(=C41)Cl)O)O)O)O)C(=O)N)N(C)C)O.Cl	False	False	False	None
+Doxycycline	[Cl-].C[C@@H]1[C@H]2[C@H](O)[C@H]3[C@H](N(C)C)C(=O)C(=C(N)/O)/C(=O)[C@@]3(O)C(=O)C2=C(O)c4c(O)cccc14.[H+]	False	True	True	None
+Ergotamine D-tartrate	C[C@@]1(C(=O)N2[C@H](C(=O)N3CCC[C@H]3[C@@]2(O1)O)CC4=CC=CC=C4)NC(=O)[C@H]5CN([C@@H]6CC7=CNC8=CC=CC(=C78)C6=C5)C.C[C@@]1(C(=O)N2[C@H](C(=O)N3CCC[C@H]3[C@@]2(O1)O)CC4=CC=CC=C4)NC(=O)[C@H]5CN([C@@H]6CC7=CNC8=CC=CC(=C78)C6=C5)C.[C@H]([C@@H](C(=O)O)O)(C(=O)O)O	True	True	True	645
+Labetalol hydrochloride	[H+].[Cl-].CC(CCc1ccccc1)NCC(O)c2ccc(O)c(c2)C(N)=O	False	False	False	547
+Danazol	C[C@]12Cc3cnoc3C=C1CC[C@@H]4[C@@H]2CC[C@@]5(C)[C@H]4CC[C@@]5(O)C#C	False	False	False	None
+Ketoprofen	CC(C(O)=O)c1cccc(c1)C(=O)c2ccccc2	False	False	False	1365
+Piroxicam	CN1C(=C(C2=CC=CC=C2S1(=O)=O)O)C(=O)NC3=CC=CC=N3	False	False	False	624
+Ranitidine	CN/C(=C\[N+](=O)[O-])/NCCSCC1=CC=C(O1)CN(C)C	True	True	True	279
+Carbamazepine	NC(=O)N1c2ccccc2C=Cc3ccccc13	True	True	False	179
+Terbutaline	CC(C)(C)NCC(O)c1cc(O)cc(O)c1	False	False	False	633
+L-phenylalanine	NC(Cc1ccccc1)C(O)=O	False	False	False	None
+Naproxen	COc1ccc2cc(ccc2c1)C(C)C(O)=O	False	False	False	554
+S)-(−)-Propranolol hydrochloride	[Cl-].CC(C)NC[C@H](O)COc1cccc2ccccc12.[H+]	True	False	False	181
+Loperamide	CN(C)C(=O)C(CCN1CCC(O)(CC1)C1=CC=C(Cl)C=C1)(C1=CC=CC=C1)C1=CC=CC=C1	False	False	False	206
+Nadolol	CC(C)(C)NCC(O)COC1=CC=CC2=C1C[C@H](O)[C@H](O)C2	False	True	False	235
