@@ -15,6 +15,7 @@ The following files are currently stored in this repository
 
 ## Requirements
 The code was implemented using
-- Python 2.7.18
-- RDKit 2018.09.3
-- Scikit-learn 0.20.4
+- Python 3.7.9
+- RDKit 2020.09.1
+- Scikit-learn 1.0.2
+- Imblearn 0.9.0
