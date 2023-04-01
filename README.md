@@ -5,9 +5,9 @@ Repository for datasets and code to reproduce drug transporter dataset currently
 The following files are currently stored in this repository
 | Filename  | Content |
 | ------------- | ------------- |
-| Code.py | Python code to run retrospective evaluations, model fitting, and predictions  |
-| Database.tsv  | The main database used for initial model fitting  |
-| Database_drugbank5_only.tsv  | Only the DrugBank fraction of the main database  |
+| code.py | Python code to run retrospective evaluations, model fitting, and predictions  |
+| database.tsv  | The main database used for initial model fitting  |
+| database_drugbank5_only.tsv  | Only the DrugBank fraction of the main database  |
 | additional_X.tsv  | Additional (non-)substrates extracted from active learning literature search   |
 | investigational_compounds.tsv  | Investigational drugs currently undergoing (pre) clinical evaluation   |
 | investigational_library.tsv  | Investigational drugs that were experimentally characterized by us  |
