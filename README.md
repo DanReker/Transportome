@@ -1,6 +1,6 @@
 ![Transportome](https://user-images.githubusercontent.com/127516906/229308328-865a34e9-c2e0-457d-8171-ec1723ee07b0.jpg)
 
-Repository for datasets and code to reproduce drug transporter dataset currently under review.
+Repository for datasets and code to reproduce drug transporter study currently under review.
 
 The following files are currently stored in this repository
 | Filename  | Content |
