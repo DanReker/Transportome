@@ -1,4 +1,4 @@
-![Transportome](https://user-images.githubusercontent.com/127516906/229308328-865a34e9-c2e0-457d-8171-ec1723ee07b0.jpg)
+![Transportome](https://github.com/RekerLab/Transportome/assets/127516906/1111fe5d-7594-4296-af9e-a3479a4ce59d)
 
 Repository for datasets and code to reproduce drug transporter study currently under review.
 
