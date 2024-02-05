@@ -1,9 +1,10 @@
-#####################
-# IMPORTS
-#####################
+###########
+# IMPORTS #
+###########
 import numpy as np
 import math
 import scipy
+import abc
 from scipy import stats
 from joblib import Parallel, delayed
 # rdkit for chemistry processing
@@ -38,10 +39,18 @@ from imblearn.metrics import sensitivity_specificity_support
 from sklearn.model_selection import LeaveOneGroupOut
 from sklearn.model_selection import cross_val_predict
 from sklearn.model_selection import StratifiedKFold
+# deep model buildup
+import deepchem as dc
+from deepchem.models.torch_models import MPNNModel
+from deepchem.models import PagtnModel
+from deepchem.feat import MolGraphConvFeaturizer as MGCfeat
+from deepchem.feat import PagtnMolGraphFeaturizer as feat
 
-#####################
-# FUNCTIONS TO READ DATA
-#####################
+
+##########################
+# FUNCTIONS TO READ DATA #
+##########################
+
 def transclass(x):
 	if "True" in x:
 		return True
@@ -128,12 +137,136 @@ def evaluate(pred_vals,true_vals,pred_prob):
 	tn, fp, fn, tp,
 	sensitivity, specificity,
 	rocauc(true_vals,pred_prob)]
+
+#######################################
+# FUNCTIONS TO INITIALIZE DEEP MODELS #
+#######################################
+
+class abstractmodel(metaclass=abc.ABCMeta):
+  model = None
+
+  @abc.abstractmethod
+  def fit(self,x,y):
+    pass
+
+  @abc.abstractmethod
+  def predict(self,x):
+    pass
+
+  @abc.abstractmethod
+  def predict_uncertainty(self,x):
+    pass
+
+
+class PAGTNensemble(abstractmodel):
+  epochs = None
+  n_estimators = 0
+
+  def __init__(self, n_estimators=10, epochs=100):
+    self.epochs = epochs
+    self.n_estimators = n_estimators
+
+  def fit(self,x,y):
+    self.model = [PagtnModel(mode='classification',n_tasks=1,optimizer=dc.models.optimizers.AdamW(),model_dir = 'PAGTN_Classification_Trained_Model') for i in range(self.n_estimators)]
+
+    data = dc.data.NumpyDataset(x,y)
+
+    for i in range(len(self.model)):
+      self.model[i].fit(data,self.epochs)
+
+  def predict(self,x):
+    data = dc.data.NumpyDataset(x,[None for i in range(len(x))])
+    preds = [self.model[i].predict(data) for i in range(len(self.model))]
+    preds = np.median(preds,axis=0)
+    return np.ndarray.flatten(preds)
+
+  def apply(self,x):
+    data = dc.data.NumpyDataset(x,[None for i in range(len(x))])
+    preds = [self.model[i].predict(data) for i in range(len(self.model))]
+    return np.transpose(preds)
+
+  def predict_uncertainty(self,x):
+    data = dc.data.NumpyDataset(x,[None for i in range(len(x))])
+    vars = np.std([self.model[i].predict(data) for i in range(len(self.model))],axis=0)
+    return np.ndarray.flatten(vars)
+
+class MPNNensemble(abstractmodel):
+  epochs = None
+  n_estimators = 0
+
+  def __init__(self, n_estimators=10, epochs=100):
+    self.epochs = epochs
+    self.n_estimators = n_estimators
+
+  def fit(self,x,y):
+    self.model = [MPNNModel(mode='classification',n_tasks=1,optimizer=dc.models.optimizers.AdamW(),model_dir = 'MPNN_Classification_Trained_Model') for i in range(self.n_estimators)]
+
+    data = dc.data.NumpyDataset(x,y)
+
+    for i in range(len(self.model)):
+      self.model[i].fit(data,self.epochs)
+
+  def predict(self,x):
+    data = dc.data.NumpyDataset(x,[None for i in range(len(x))])
+    preds = [self.model[i].predict(data) for i in range(len(self.model))]
+    preds = np.median(preds,axis=0)
+    return np.ndarray.flatten(preds)
+
+  def apply(self,x):
+    data = dc.data.NumpyDataset(x,[None for i in range(len(x))])
+    preds = [self.model[i].predict(data) for i in range(len(self.model))]
+    return np.transpose(preds)
+
+  def predict_uncertainty(self,x):
+    data = dc.data.NumpyDataset(x,[None for i in range(len(x))])
+    vars = np.std([self.model[i].predict(data) for i in range(len(self.model))],axis=0)
+    return np.ndarray.flatten(vars)
+
+
+# PAGTN k-fold-cross classification (predict method)
+def PAGTNkfcc(x,y,model,stratified=False,k=10):
+  if stratified:
+    splitter = StratifiedKFold(n_splits=k, shuffle=False) # reproduce the splitting strategy used in cross_val_predict function
+    print('Stratified CV...')
+  else:
+    splitter = KFold(n_splits=k, shuffle=True)
+    print('Standard CV...')
+  preds = []
+  vals  = []
+  for train, test in splitter.split(x, y):
+    model.fit(x[train],y[train])
+    preds = np.append(preds, model.predict(x[test]))
+    vals  = np.append(vals, y[test])
+  return [vals,preds]
+
+# MPNN k-fold-cross classification (predict method)
+def MPNNkfcc(x,y,model,stratified=False,k=10):
+  if stratified:
+    splitter = StratifiedKFold(n_splits=k, shuffle=False) # reproduce the splitting strategy used in cross_val_predict function
+    print('Stratified CV...')
+  else:
+    splitter = KFold(n_splits=k, shuffle=True)
+    print('Standard CV...')
+  preds = []
+  vals  = []
+  for train, test in splitter.split(x, y):
+    model.fit(x[train],y[train])
+    preds = np.append(preds, model.predict(x[test]))
+    vals  = np.append(vals, y[test])
+  return [vals,preds]
+
+# output of predict contains many pairs, with each of the two values referring to the prob of each class
+def every_second_element(values):
+    second_values = []
+
+    for index in range(1, len(values), 2):
+        second_values.append(values[index])
+
+    return second_values
 	
-
-
-#####################
-# INITIAL MODEL EVALUATION
-#####################
+############################
+# INITIAL MODEL EVALUATION #
+############################
 
 ########
 # read training database
@@ -144,25 +277,49 @@ x = np.array(describe_mols(train[1]))
 y = np.array(train[2])
 m = np.array(train[1])
 
-models = [ RandomForestClassifier(n_estimators=500), GaussianNB(),KNeighborsClassifier(3), DecisionTreeClassifier(),MLPClassifier(),LinearSVC(),ExtraTreesClassifier()]
+epochs = 50 # define deep model training hyperparameters
+
+models = [RandomForestClassifier(n_estimators=500), GaussianNB(),KNeighborsClassifier(3), DecisionTreeClassifier(), MLPClassifier(), LinearSVC(), ExtraTreesClassifier(), 'MPNN', 'PAGTN']
 model_comparison=[]
 for model in models:
-	
-	pipe = Pipeline([('missing_values', SimpleImputer() ), ('feature_selection',VarianceThreshold()), ('scaler', StandardScaler()), ('classification', model)])
-	
-	for i in range(3):
-		mask = np.array([a is not None for a in y[:,i]])
-		y_sub = y[mask,i].astype(int)
-		x_sub = x[mask]
+	if type(model) != str: # Traditional machine learning models
+		pipe = Pipeline([('missing_values', SimpleImputer() ), ('feature_selection',VarianceThreshold()), ('scaler', StandardScaler()), ('classification', model)])
 		
-		temp = []
-		for ii in range(5):
-			pred_prob = sklearn.model_selection.cross_val_predict(pipe,x_sub,y_sub,cv=10,n_jobs=-1,method='predict_proba')[:,1]
-			preds = pred_prob > 0.5
-			temp += [evaluate(preds,y_sub,pred_prob)]
-	
-		model_comparison+= [temp]
+		for i in range(3):
+			mask = np.array([a is not None for a in y[:,i]])
+			y_sub = y[mask,i].astype(int)
+			x_sub = x[mask]
 
+			temp = []
+			for ii in range(5):
+				if type(model).__name__ != 'LinearSVC':
+					pred_prob = sklearn.model_selection.cross_val_predict(pipe,x_sub,y_sub,cv=10,n_jobs=-1,method='predict_proba')[:,1]
+				else:
+					pred_prob = sklearn.model_selection.cross_val_predict(pipe,x_sub,y_sub,cv=10,n_jobs=-1,method='decision_function')
+				preds = pred_prob > 0.5
+				temp += [evaluate(preds,y_sub,pred_prob)]
+			model_comparison+= [temp]
+	else: # Deep models
+		for i in range(3):
+			mask = np.array([a is not None for a in y[:,i]])
+			y_sub = y[mask,i].astype(int)
+			s_sub = s[mask]
+
+			temp = []
+			for ii in range(5):
+				if model == 'MPNN':
+					model_X = MGCfeat(5).featurize(s_sub)
+					model = MPNNensemble(n_estimators=1,epochs=epochs)
+					model_result = MPNNkfcc(model_X, y_sub, model, stratified=True, k=10) # consistent with cross_val_predict settings
+
+				elif model == 'PAGTN':
+					model_X = feat(5).featurize(s_sub)
+					model = PAGTNensemble(n_estimators=1,epochs=epochs)
+					model_result = PAGTNkfcc(model_X, y_sub, model, stratified=True, k=10) # consistent with cross_val_predict settings
+				pred_prob = np.array(every_second_element(model_result[1]))
+				preds = pred_prob > 0.5
+				temp += [evaluate(preds, y_sub, pred_prob)]
+			model_comparison+= [temp]		
 
 model_comparison = np.array(model_comparison)
 
@@ -175,22 +332,39 @@ for i in range(len(model_comparison)):
 from sklearn.metrics import roc_curve
 import pylab as pl
 
-models = [ RandomForestClassifier(n_estimators=500), GaussianNB(),KNeighborsClassifier(3), DecisionTreeClassifier(),MLPClassifier(),LinearSVC(),ExtraTreesClassifier()]
-
+models = [RandomForestClassifier(n_estimators=500), GaussianNB(),KNeighborsClassifier(3), DecisionTreeClassifier(),MLPClassifier(),LinearSVC(),ExtraTreesClassifier(), 'MPNN', 'PAGTN']
 for model in models:
-	
-	pipe = Pipeline([('missing_values', SimpleImputer() ), ('feature_selection',VarianceThreshold()), ('scaler', StandardScaler()), ('classification', model)])
-	
-	for i in range(3):
-		mask = np.array([a is not None for a in y[:,i]])
-		y_sub = y[mask,i].astype(int)
-		x_sub = x[mask]
-		
-		pred_prob = sklearn.model_selection.cross_val_predict(pipe,x_sub,y_sub,cv=10,n_jobs=-1,method='predict_proba')[:,1]
-		
-		fpr, tpr, _ = roc_curve(y_sub, pred_prob)
-		pl.plot(fpr,tpr)
+	if type(model) != str:
+		pipe = Pipeline([('missing_values', SimpleImputer() ), ('feature_selection',VarianceThreshold()), ('scaler', StandardScaler()), ('classification', model)])
 
+		for i in range(3):
+			mask = np.array([a is not None for a in y[:,i]])
+			y_sub = y[mask,i].astype(int)
+			x_sub = x[mask]
+			if type(model).__name__ != 'LinearSVC':
+				pred_prob = sklearn.model_selection.cross_val_predict(pipe,x_sub,y_sub,cv=10,n_jobs=-1,method='predict_proba')[:,1]
+			else:
+				pred_prob = sklearn.model_selection.cross_val_predict(pipe,x_sub,y_sub,cv=10,n_jobs=-1,method='decision_function')
+			fpr, tpr, _ = roc_curve(y_sub, pred_prob)
+			pl.plot(fpr,tpr)
+
+	else:
+		for i in range(3):
+			mask = np.array([a is not None for a in y[:,i]])
+			y_sub = y[mask,i].astype(int)
+			s_sub = s[mask]
+			if model == 'MPNN':
+				model_X = MGCfeat(5).featurize(s_sub)
+				model = MPNNensemble(n_estimators=1,epochs=epochs)
+				model_result = MPNNkfcc(model_X, y_sub, model, stratified=True, k=10) # consistent with cross_val_predict settings
+
+			elif model == 'PAGTN':
+				model_X = feat(5).featurize(s_sub)
+				model = PAGTNensemble(n_estimators=1,epochs=epochs)
+				model_result = PAGTNkfcc(model_X, y_sub, model, stratified=True, k=10) # consistent with cross_val_predict settings
+			pred_prob = np.array(every_second_element(model_result[1]))
+			fpr, tpr, _ = roc_curve(y_sub, pred_prob)
+			pl.plot(fpr,tpr)
 pl.show()
 
 ########
@@ -718,5 +892,7 @@ probas = np.array(probas)
 
 for p in probas:
 	print (str(int(np.sum(p<0.2) + np.sum(p>0.8))))
+
+
 
 
