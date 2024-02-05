@@ -19,3 +19,6 @@ The code was implemented using
 - [RDKit 2020.09.1](https://www.rdkit.org/docs/Install.html)
 - [Scikit-learn 1.0.2](https://scikit-learn.org/stable/)
 - [Imblearn 0.9.0](https://imbalanced-learn.org/stable/)
+- [DeepChem 2.7.1](https://deepchem.io/)
+- [DEEP GRAPH LIBRARY 2.0.0](https://www.dgl.ai/)
+- [DGL-LifeSci 0.3.1](https://lifesci.dgl.ai/index.html)
