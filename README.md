@@ -1,6 +1,8 @@
 ![Transportome](https://github.com/RekerLab/Transportome/assets/127516906/1111fe5d-7594-4296-af9e-a3479a4ce59d)
 
-Repository for datasets and code to reproduce drug transporter study currently under review.
+For more information, please refer to the [associated publication](https://www.nature.com/articles/s41551-023-01128-9)
+
+If you use this data or code, please kindly cite: Shi, Y., Reker, D., Byrne, J.D. et al. Screening oral drugs for their interactions with the intestinal transportome via porcine tissue explants and machine learning. Nat. Biomed. Eng (2024). https://doi.org/10.1038/s41551-023-01128-9 
 
 The following files are currently stored in this repository
 | Filename  | Content |
